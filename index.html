@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNETE A NOSOTROS PARA RECIBIR MAS CONTENIDO</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            margin: 5px;
+            flex: 1;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .detalle-usuario {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .detalle-usuario h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .detalle-usuario p {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Usuarios Registrados</h1>
+        <table id="tablaDatos">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre del Usuario</th>
+                    <th>Correo Electrónico</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Aquí se mostrarán los datos -->
+            </tbody>
+        </table>
+        <div class="detalle-usuario" id="detalleUsuario" style="display: none;">
+            <h2>Detalles del Usuario</h2>
+            <p><strong>ID:</strong> <span id="detalleId"></span></p>
+            <p><strong>Nombre del Usuario:</strong> <span id="detalleNombre"></span></p>
+            <p><strong>Correo Electrónico:</strong> <span id="detalleCorreo"></span></p>
+        </div>
+        <form id="formulario">
+            <input type="hidden" id="indice" value="">
+            <input type="text" id="nombreUsuario" placeholder="Nombre del Usuario">
+            <input type="text" id="correoElectronico" placeholder="Correo Electrónico">
+            <button type="submit" id="btnGuardar">Ingresar</button>
+            <button type="button" id="btnCancelar">Cancelar</button>
+        </form>
+    </div>
+    
+    <script>
+        // Datos iniciales (simulados)
+        let usuarios = [
+            
+        ];
+
+        const tablaBody = document.querySelector('#tablaDatos tbody');
+        const formulario = document.querySelector('#formulario');
+        const btnGuardar = document.querySelector('#btnGuardar');
+        const btnCancelar = document.querySelector('#btnCancelar');
+        const indiceInput = document.querySelector('#indice');
+        const detalleUsuario = document.querySelector('#detalleUsuario');
+        const detalleId = document.querySelector('#detalleId');
+        const detalleNombre = document.querySelector('#detalleNombre');
+        const detalleCorreo = document.querySelector('#detalleCorreo');
+        let modoEdicion = false;
+        let indiceEditar = null;
+
+        // Función para mostrar los datos en la tabla
+        function mostrarDatos() {
+            tablaBody.innerHTML = '';
+            usuarios.forEach((usuario, index) => {
+                tablaBody.innerHTML += `
+                    <tr>
+                        <td>${usuario.id}</td>
+                        <td>${usuario.nombre}</td>
+                        <td>${usuario.correo}</td>
+                        <td>
+                            <button onclick="editar(${index})">Editar</button>
+                            <button onclick="eliminar(${index})">Eliminar</button>
+                            <button onclick="verDetalle(${index})">Ver Detalle</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Función para agregar un nuevo usuario
+        function agregar() {
+            const nombreUsuario = document.querySelector('#nombreUsuario').value;
+            const correoElectronico = document.querySelector('#correoElectronico').value;
+            
+            if (nombreUsuario && correoElectronico) {
+                if (modoEdicion) {
+                    usuarios[indiceEditar].nombre = nombreUsuario;
+                    usuarios[indiceEditar].correo = correoElectronico;
+                    modoEdicion = false;
+                    indiceEditar = null;
+                    btnGuardar.textContent = 'Ingresar';
+                    btnCancelar.style.display = 'none';
+                } else {
+                    const nuevoId = usuarios.length > 0 ? usuarios[usuarios.length - 1].id + 1 : 1;
+                    usuarios.push({ id: nuevoId, nombre: nombreUsuario, correo: correoElectronico });
+                }
+                mostrarDatos();
+                limpiarFormulario();
+            } else {
+                alert('Por favor ingresa el nombre del usuario y el correo electrónico');
+            }
+        }
+
+        // Función para limpiar el formulario
+        function limpiarFormulario() {
+            indiceInput.value = '';
+            document.querySelector('#nombreUsuario').value = '';
+            document.querySelector('#correoElectronico').value = '';
+        }
+
+        // Función para editar un usuario
+        function editar(index) {
+            const usuario = usuarios[index];
+            if (usuario) {
+                document.querySelector('#nombreUsuario').value = usuario.nombre;
+                document.querySelector('#correoElectronico').value = usuario.correo;
+                indiceInput.value = index;
+                modoEdicion = true;
+                indiceEditar = index;
+                btnGuardar.textContent = 'Actualizar';
+                btnCancelar.style.display = 'inline-block';
+            }
+        }
+
+        // Función para eliminar un usuario
+        function eliminar(index) {
+            if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
+                usuarios.splice(index, 1);
+                mostrarDatos();
+                limpiarFormulario();
+                modoEdicion = false;
+                indiceEditar = null;
+                btnGuardar.textContent = 'Ingresar';
+                btnCancelar.style.display = 'none';
+                // Ocultar detalles de usuario después de eliminar
+                detalleUsuario.style.display = 'none';
+            }
+        }
+
+        // Función para ver detalle de un usuario
+        function verDetalle(index) {
+            const usuario = usuarios[index];
+            if (usuario) {
+                detalleId.textContent = usuario.id;
+                detalleNombre.textContent = usuario.nombre;
+                detalleCorreo.textContent = usuario.correo;
+                detalleUsuario.style.display = 'block';
+            }
+        }
+
+        // Eventos
+        mostrarDatos();
+        formulario.onsubmit = function(event) {
+            event.preventDefault();
+            agregar();
+        };
+
+        btnCancelar.onclick = function() {
+            limpiarFormulario();
+            modoEdicion = false;
+            indiceEditar = null;
+            btnGuardar.textContent = 'Ingresar';
+            btnCancelar.style.display = 'none';
+            // Ocultar detalles de usuario al cancelar
+            detalleUsuario.style.display = 'none';
+        };
+    </script>
+</body>
+</html>
